@@ -4,7 +4,7 @@
     "version": "1.0",
     "depends": ["account"],
     "author": "JGuzmanDev",
-    "category": "Accounting",
+    'category': 'Goodoo/Apps',
     "data": ["views/payment_report_document.xml"],
     "installable": True,
     "auto_install": False,
