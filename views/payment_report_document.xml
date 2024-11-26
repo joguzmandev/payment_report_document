@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="report_payment_document_mx" inherit_id="account.report_payment_receipt_document">
+        <xpath expr="//div[hasclass('page')]" position="replace">
+            <div class="page">
+
+                <h3>
+                    <strong>Recibo de pago:
+                        <span t-field="o.name"/>
+                    </strong>
+                </h3>
+                <div class="mb-4 mt-3">
+                    <div class="row">
+                        <div class="col-6" t-if="o.date">
+                            Fecha de pago::
+                            <span t-field="o.date"/>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-6" t-if="o.partner_type">
+                            <t t-if="o.partner_type == 'customer'">
+                                Cliente:
+                            </t>
+                            <t t-if="o.partner_type == 'supplier'">
+                                Proveedor:
+                            </t>
+                            <span t-field="o.partner_id"/>
+                        </div>
+                        <div class="col-6" t-if="o.payment_method_id">
+                            Método de pago:
+<!--                            <span t-field="o.payment_method_id.name"/>-->
+                            <span t-field="o.journal_id.name"/>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-6" t-if="o.amount">
+                            Importe de pago:
+                            <span t-field="o.amount"
+                                  t-options="{'widget': 'monetary', 'display_currency': o.currency_id}"/>
+                        </div>
+                        <div class="col-6" t-if="o.ref">
+                            Concepto:
+                            <span t-field="o.ref"/>
+                        </div>
+                    </div>
+                </div>
+
+                <t t-set="partials" t-value="o.move_id._get_reconciled_invoices_partials()"/>
+                <t t-set="invoices" t-value="{partial[2].move_id for partial in partials}"/>
+                <!-- Check if invoices include different currencies -->
+                <t t-foreach="invoices" t-as="inv">
+                    <t t-if="any(inv.currency_id != par[2].currency_id for par in inv._get_reconciled_invoices_partials())"
+                       t-set="otherCurrency" t-value="True"/>
+                </t>
+
+                <table class="table table-sm">
+                    <thead>
+                        <tr>
+                            <th>
+                                <span>CONCEPTO</span>
+                            </th>
+                            <th class="text-right">
+                                <span>SUBTOTAL</span>
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <t t-foreach="invoices" t-as="inv">
+                            <t t-if="inv.move_type != 'entry'">
+                                <tr>
+                                    <td>
+                                        <span>Pago a factura No.
+                                            <t t-esc="inv.l10n_latam_document_number"/>
+                                        </span>
+                                    </td>
+                                    <td class="text-right">
+                                        <t t-set="par" t-value="inv._get_reconciled_invoices_partials()[0]"/>
+                                        <t t-set="payment" t-value="par[2].move_id"/>
+                                         <t t-set="amountPayment" t-value="-payment.amount_total"/>
+                                        <t t-set="amountInvoice" t-value="par[1]"/>
+                                        <t t-set="currencyInvoice" t-value="inv.currency_id"/>
+
+                                        <span class="text-right" t-if="otherCurrency and currencyPayment != currencyInvoice" t-esc="amountPayment"
+                                              t-options="{'widget': 'monetary', 'display_currency': currencyPayment}"/>
+                                        <span t-esc="amountInvoice"  t-options="{'widget': 'monetary', 'display_currency': currencyInvoice}"/>
+                                    </td>
+                                </tr>
+                            </t>
+                        </t>
+                    </tbody>
+                </table>
+                <br/>
+                <br/>
+                <br/>
+                <br/>
+                <div style="position:absolute; left:0px;">
+                    ______________________________________<br/>&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;ELABORADO
+                    POR
+                </div>
+                <div style="margin-left:255px; margin-right:20px;">
+                    &amp;nbsp;&amp;nbsp; &amp;nbsp;___________________________________________________<br/>&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;ACEPTADA,
+                    FIRMA Y/O SELLO Y FECHA
+                    &amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;
+                </div>
+
+            </div>
+        </xpath>
+    </template>
+</odoo>
